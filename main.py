@@ -1,14 +1,30 @@
 import pdb
+import datetime
 from pydoc import doc
 from turtle import pd
 import xml.etree.ElementTree as ET
 from openpyxl import load_workbook
+import uuid
+
+def build_grp_hdr(ccti, number_of_txns=0):
+    grp_hdr = ET.SubElement(ccti, 'GrpHdr')
+    msg_id = ET.SubElement(grp_hdr, 'MsgId')
+    msg_id.text = str(uuid.uuid4())
+
+    dt = ET.SubElement(grp_hdr, 'CreDtTm')
+    dt.text = str(datetime.datetime.now())
+
+    txns = ET.SubElement(grp_hdr, 'NbOfTxs')
+    txns.text = str(number_of_txns)
+
+
+
+
 
 def build_xml(transactions):
     document = ET.Element('Document')
     ccti = ET.SubElement(document, 'CstmrCdtTrfInitn')
-    grp_hdr = ET.SubElement(ccti, 'GrpHdr')
-
+    build_grp_hdr(ccti)
     ET.dump(document)
 
 
