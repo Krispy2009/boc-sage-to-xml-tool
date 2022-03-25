@@ -1,12 +1,15 @@
+import os
 import pdb
+import uuid
 import datetime
+import xml.etree.ElementTree as ET
+
 from pydoc import doc
 from turtle import pd
-import xml.etree.ElementTree as ET
+# from pprint import pprint
 from openpyxl import load_workbook
-import uuid
 
-def build_grp_hdr(ccti, number_of_txns=0):
+def build_grp_hdr(ccti, number_of_txns=0, total=0):
     grp_hdr = ET.SubElement(ccti, 'GrpHdr')
     msg_id = ET.SubElement(grp_hdr, 'MsgId')
     msg_id.text = str(uuid.uuid4())
@@ -16,6 +19,15 @@ def build_grp_hdr(ccti, number_of_txns=0):
 
     txns = ET.SubElement(grp_hdr, 'NbOfTxs')
     txns.text = str(number_of_txns)
+
+    # Control Sum has 2 decimal places
+    control_sum = ET.SubElement(grp_hdr, 'CtrlSum')
+    control_sum.text = f"{total:.2f}"
+
+    init_party = ET.SubElement(grp_hdr, 'InitgPty')
+    nm = ET.SubElement(init_party, 'Nm')
+    nm.text = f"{os.environ['COMPANY_NAME']}"
+
 
 
 
