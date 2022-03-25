@@ -53,6 +53,29 @@ def build_pmts(ccti, transaction):
     req_ex_date = ET.SubElement(pmt_info, "ReqdExctnDt")
     req_ex_date.text = datetime.datetime.now().strftime("%Y-%m-%D")
 
+    # The only required fields is IBAN, BIC
+    # Charges are by default Shared in SEPA and OUR in TBOC transfers
+    # TODO: Ask whether this is ok
+    debtor = ET.SubElement(pmt_info, "Dbtr")
+
+    debtor_acct = ET.SubElement(pmt_info, "DbtrAcct")
+    debtor_id = ET.SubElement(debtor_acct, "Id")
+    iban = ET.SubElement(debtor_id, "IBAN")
+    iban.text = str(os.environ["COMPANY_IBAN"])
+
+    debtor_agent = ET.SubElement(pmt_info, "DbtrAgt")
+    fin_inst = ET.SubElement(debtor_agent, "FinInstnId")
+    bic = ET.SubElement(fin_inst, "BIC")
+    bic.text = BOC_BIC
+
+    # Not Sure this is needed
+    # TODO: Ask about charges (like above)
+    chrg_bearer = ET.SubElement(pmt_info, "ChrgBr")
+    if transaction.get("BIC") == BOC_BIC:
+        chrg_bearer.text = "DEBT"
+    else:
+        chrg_bearer.text = "SHAR"
+
 
 def build_xml(transactions):
     document = ET.Element("Document")
