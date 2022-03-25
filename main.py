@@ -9,6 +9,7 @@ from turtle import pd
 
 # from pprint import pprint
 from openpyxl import load_workbook
+from constants import BOC_BIC
 
 
 def build_grp_hdr(ccti, number_of_txns=0, total=0):
@@ -32,10 +33,37 @@ def build_grp_hdr(ccti, number_of_txns=0, total=0):
     nm.text = f"{os.environ['COMPANY_NAME']}"
 
 
+def build_pmts(ccti, transaction):
+    pmt_info = ET.SubElement(ccti, "PmtInf")
+    pmt_id = ET.SubElement(pmt_info, "PmtInfId")
+    pmt_id.text(uuid.uuid4())
+
+    # Value is always TRF which means Credit Transfer
+    pmt_mtd = ET.SubElement(pmt_info, "PmtMtd")
+    pmt_mtd.text = "TRF"
+
+    pmt_tp_inf = ET.SubElement(pmt_info, "PmtTpInf")
+    service_level = ET.SubElement(pmt_tp_inf, "SvcLvl")
+    code = ET.SubElement(service_level, "Cd")
+    if transaction.get("BIC") == BOC_BIC:
+        code.text = "TBOC"
+    else:
+        code.text = "SEPA"
+
+    req_ex_date = ET.SubElement(pmt_info, "ReqdExctnDt")
+    req_ex_date.text = datetime.datetime.now().strftime("%Y-%m-%D")
+
+
 def build_xml(transactions):
     document = ET.Element("Document")
     ccti = ET.SubElement(document, "CstmrCdtTrfInitn")
+
+    # Add Group Header
     build_grp_hdr(ccti)
+
+    # One PMT Info element per transaction
+    for transaction in transactions:
+        build_pmts(ccti)
     ET.dump(document)
 
 
