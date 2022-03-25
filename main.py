@@ -49,6 +49,6 @@ def unmerge_rows(ws):
 
 
 if __name__ == '__main__':
-    transactions = parse_sage_report('Report_small.xlsx')
+    transactions = parse_sage_report('sample.xlsx')
     build_xml(transactions)
 
