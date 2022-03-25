@@ -147,7 +147,9 @@ def parse_sage_report(filename):
     for xl_row in ws:
         if xl_row[0].row < 8:
             continue
-        transactions.append(xl_row_to_dict(xl_row))
+        row_to_append = xl_row_to_dict(xl_row)
+        if row_to_append.get("IBAN") is not None:
+            transactions.append(row_to_append)
     return transactions
 
 
