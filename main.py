@@ -34,9 +34,13 @@ def build_grp_hdr(ccti, number_of_txns=0, total=0):
 
 
 def build_pmts(ccti, transaction):
+    if transaction.get("IBAN") is None:
+        # A critical piece is missing don't try to build pmt
+        return
+    print(transaction)
     pmt_info = ET.SubElement(ccti, "PmtInf")
     pmt_id = ET.SubElement(pmt_info, "PmtInfId")
-    pmt_id.text(uuid.uuid4())
+    pmt_id.text = str(uuid.uuid4())
 
     # Value is always TRF which means Credit Transfer
     pmt_mtd = ET.SubElement(pmt_info, "PmtMtd")
@@ -76,9 +80,47 @@ def build_pmts(ccti, transaction):
     else:
         chrg_bearer.text = "SHAR"
 
+    txn_info = ET.SubElement(pmt_info, "CdtTrfTxInf")
+
+    tx_pmt_id = ET.SubElement(txn_info, "PmtId")
+    e2e = ET.SubElement(tx_pmt_id, "EndToEndId")
+    e2e.text = str(uuid.uuid4())
+
+    # TODO: CHECK THIS - is it always P2 and P3?
+    amt = ET.SubElement(txn_info, "Amt")
+    inst_amt = ET.SubElement(amt, "InstdAmt", attrib={"Ccy": "EUR"})
+    inst_amt.text = str(transaction["Period 2"] + transaction["Period 3"])
+
+    creditor = ET.SubElement(txn_info, "Cdtr")
+    cr_nm = ET.SubElement(creditor, "Nm")
+    cr_nm.text = transaction["name"][:34]
+
+    creditor_acct = ET.SubElement(txn_info, "CdtrAcct")
+    creditor_id = ET.SubElement(creditor_acct, "Id")
+    iban = ET.SubElement(creditor_id, "IBAN")
+    iban.text = str(transaction["IBAN"])
+
+    txn_info = add_remit_info(txn_info, transaction)
+
+
+def add_remit_info(txn_info, transaction):
+    # A message that will appear on the creditor's statement
+    if transaction.get("notes"):
+        info = ET.SubElement(txn_info, "RmtInf")
+        msg = ET.SubElement(info, "Ustrd")
+        msg.text = transaction["notes"]
+    return txn_info
+
 
 def build_xml(transactions):
-    document = ET.Element("Document")
+    document = ET.Element(
+        "Document",
+        attrib={
+            "xmlns:NS1": "http://www.w3.org/2001/XMLSchema-instance",
+            "xmlns": "urn:iso:std:iso:20022:tech:xsd:pain.001.001.03",
+            "NS1:schemaLocation": "urn:iso:std:iso:20022:tech:xsd:pain.001.001.03 pain.001.001.03.xsd",
+        },
+    )
     ccti = ET.SubElement(document, "CstmrCdtTrfInitn")
 
     # Add Group Header
@@ -86,8 +128,11 @@ def build_xml(transactions):
 
     # One PMT Info element per transaction
     for transaction in transactions:
-        build_pmts(ccti)
-    ET.dump(document)
+        build_pmts(ccti, transaction)
+
+    filename = f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S_ACMA.xml')}"
+    with open(filename, "wb") as f:
+        f.write(ET.tostring(document))
 
 
 def parse_sage_report(filename):

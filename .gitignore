@@ -1,3 +1,4 @@
 .env
 Report.xlsx
 .vscode/
+__pycache__/
