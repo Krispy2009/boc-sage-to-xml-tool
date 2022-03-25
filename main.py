@@ -15,11 +15,11 @@ from constants import BOC_BIC
 def build_grp_hdr(ccti, number_of_txns=0, total=0):
     grp_hdr = ET.SubElement(ccti, "GrpHdr")
     msg_id = ET.SubElement(grp_hdr, "MsgId")
-    msg_id.text = str(uuid.uuid4())
+    msg_id.text = str(uuid.uuid4().hex)
 
     # TODO: Correct format
     dt = ET.SubElement(grp_hdr, "CreDtTm")
-    dt.text = str(datetime.datetime.now())
+    dt.text = str(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"))
 
     txns = ET.SubElement(grp_hdr, "NbOfTxs")
     txns.text = str(number_of_txns)
@@ -40,7 +40,7 @@ def build_pmts(ccti, transaction):
     print(transaction)
     pmt_info = ET.SubElement(ccti, "PmtInf")
     pmt_id = ET.SubElement(pmt_info, "PmtInfId")
-    pmt_id.text = str(uuid.uuid4())
+    pmt_id.text = str(uuid.uuid4().hex)
 
     # Value is always TRF which means Credit Transfer
     pmt_mtd = ET.SubElement(pmt_info, "PmtMtd")
@@ -55,7 +55,7 @@ def build_pmts(ccti, transaction):
         code.text = "SEPA"
 
     req_ex_date = ET.SubElement(pmt_info, "ReqdExctnDt")
-    req_ex_date.text = datetime.datetime.now().strftime("%Y-%m-%D")
+    req_ex_date.text = datetime.datetime.now().strftime("%Y-%m-%d")
 
     # The only required fields is IBAN, BIC
     # Charges are by default Shared in SEPA and OUR in TBOC transfers
@@ -84,7 +84,7 @@ def build_pmts(ccti, transaction):
 
     tx_pmt_id = ET.SubElement(txn_info, "PmtId")
     e2e = ET.SubElement(tx_pmt_id, "EndToEndId")
-    e2e.text = str(uuid.uuid4())
+    e2e.text = str(uuid.uuid4().hex)
 
     # TODO: CHECK THIS - is it always P2 and P3?
     amt = ET.SubElement(txn_info, "Amt")
@@ -170,7 +170,10 @@ def xl_row_to_dict(xl_row):
 
         if col.column_letter in row_map:
             row_title = row_map[col.column_letter]
-            row[row_title] = col.value
+            value = col.value
+            if row_title == "IBAN":
+                value = remove_spaces(col.value)
+            row[row_title] = value
     return row
 
 
@@ -179,6 +182,11 @@ def unmerge_rows(ws):
     for merged in ws.merged_cells:
         ws.unmerge_cells(str(merged))
     return ws
+
+
+def remove_spaces(iban):
+    if iban:
+        return iban.replace(" ", "")
 
 
 if __name__ == "__main__":
