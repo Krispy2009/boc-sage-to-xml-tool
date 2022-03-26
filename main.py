@@ -7,7 +7,6 @@ import xml.etree.ElementTree as ET
 from pydoc import doc
 from turtle import pd
 
-# from pprint import pprint
 from openpyxl import load_workbook
 from constants import BOC_BIC
 
@@ -37,7 +36,7 @@ def build_pmts(ccti, transaction):
     if transaction.get("IBAN") is None:
         # A critical piece is missing don't try to build pmt
         return
-    print(transaction)
+
     pmt_info = ET.SubElement(ccti, "PmtInf")
     pmt_id = ET.SubElement(pmt_info, "PmtInfId")
     pmt_id.text = str(uuid.uuid4().hex)
