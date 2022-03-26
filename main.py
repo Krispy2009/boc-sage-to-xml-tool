@@ -123,8 +123,11 @@ def build_xml(transactions):
     )
     ccti = ET.SubElement(document, "CstmrCdtTrfInitn")
 
+    # TODO: Check if this is right
+    total = sum([i["total_p2_p3"] for i in transactions])
+
     # Add Group Header
-    build_grp_hdr(ccti)
+    build_grp_hdr(ccti, number_of_txns=len(transactions), total=total)
 
     # One PMT Info element per transaction
     for transaction in transactions:
@@ -150,7 +153,25 @@ def parse_sage_report(filename):
         row_to_append = xl_row_to_dict(xl_row)
         if row_to_append.get("IBAN") is not None:
             transactions.append(row_to_append)
+
     return transactions
+
+
+def do_calcs(txns):
+    for tx in txns:
+        total_p1_p2 = tx["Period 1"] + tx["Period 2"]
+        tx["total_p1_p2"] = total_p1_p2
+
+        total_p2_p3 = tx["Period 2"] + tx["Period 3"]
+        tx["total_p2_p3"] = total_p2_p3
+
+        total_p1_p2_p3 = tx["Period 1"] + tx["Period 2"] + tx["Period 3"]
+        tx["total_p1_p2_p3"] = total_p1_p2_p3
+
+        total_all = tx["Period 1"] + tx["Period 2"] + tx["Period 3"] + tx["Older"]
+        tx["total_all"] = total_all
+
+    return txns
 
 
 def xl_row_to_dict(xl_row):
@@ -193,4 +214,5 @@ def remove_spaces(iban):
 
 if __name__ == "__main__":
     transactions = parse_sage_report("sample.xlsx")
+    transactions = do_calcs(transactions)
     build_xml(transactions)
