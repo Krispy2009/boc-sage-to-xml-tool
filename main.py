@@ -1,4 +1,5 @@
 import os
+import re
 import pdb
 import uuid
 import datetime
@@ -195,6 +196,8 @@ def xl_row_to_dict(xl_row):
             value = col.value
             if row_title == "IBAN":
                 value = remove_spaces(col.value)
+            elif row_title == "name":
+                value = remove_special_chars(col.value)
             row[row_title] = value
     return row
 
@@ -209,6 +212,15 @@ def unmerge_rows(ws):
 def remove_spaces(iban):
     if iban:
         return iban.replace(" ", "")
+
+
+def remove_special_chars(name):
+    # acceptable_special_chars = ["/", "-", "?", ":", "(", ")", ".", ",", "‘", "+", " "]
+    RE = re.compile(r"[!@&*\]\[{};_><^%$#]+")
+    if name:
+        for match in RE.findall(name):
+            name = name.replace(match, "")
+    return name
 
 
 if __name__ == "__main__":
