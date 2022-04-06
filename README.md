@@ -15,6 +15,6 @@ COMPANY_IBAN=<your company IBAN>
 ```
 4. Make sure the filename in `main.py` corresponds to your report's filename.
 5. Run `python main.py`
-6. 🎉 the XML should be created in the current directory.
+6. The XML should be created in the current directory 🎉
 
 
