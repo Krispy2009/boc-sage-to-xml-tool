@@ -112,7 +112,7 @@ class BoCXML:
         # TODO: CHECK THIS - is it always P2 and P3?
         amt = ET.SubElement(txn_info, "Amt")
         inst_amt = ET.SubElement(amt, "InstdAmt", attrib={"Ccy": "EUR"})
-        inst_amt.text = str(transaction["Period 2"] + transaction["Period 3"])
+        inst_amt.text = f"{transaction['Period 2'] + transaction['Period 3']:.2f}"
 
         creditor = ET.SubElement(txn_info, "Cdtr")
         cr_nm = ET.SubElement(creditor, "Nm")
