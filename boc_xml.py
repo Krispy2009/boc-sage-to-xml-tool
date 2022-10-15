@@ -39,6 +39,7 @@ class BoCXML:
         filename = f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S_ACMA.xml')}"
         with open(filename, "wb") as f:
             f.write(ET.tostring(self.document))
+        return filename
 
     def build_grp_hdr(self, ccti, number_of_txns=0, total=0):
         grp_hdr = ET.SubElement(ccti, "GrpHdr")
