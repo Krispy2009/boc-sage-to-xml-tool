@@ -8,6 +8,10 @@ from constants import BOC_BIC
 
 class BoCXML:
     def __init__(self, transactions):
+
+        if not all([os.environ.get("COMPANY_NAME"), os.environ.get("COMPANY_IBAN")]):
+            raise Exception("Please set COMPANY_NAME and COMPANY_IBAN values")
+
         self.document = self.build_xml(transactions)
 
     def build_xml(self, transactions):
@@ -60,8 +64,8 @@ class BoCXML:
         if transaction.get("IBAN") is None:
             # A critical piece is missing don't try to build pmt
             return
-        elif transaction.get("Amt") == '0.00':
-            #don't add 0.00 amounts
+        elif transaction.get("Amt") == "0.00":
+            # don't add 0.00 amounts
             return
 
         pmt_info = ET.SubElement(ccti, "PmtInf")
@@ -115,7 +119,9 @@ class BoCXML:
         # TODO: CHECK THIS - is it always P2 and P3?
         amt = ET.SubElement(txn_info, "Amt")
         inst_amt = ET.SubElement(amt, "InstdAmt", attrib={"Ccy": "EUR"})
-        inst_amt.text = f"{transaction['Older'] + transaction['Period 2'] + transaction['Period 3']:.2f}"
+        inst_amt.text = (
+            f"{transaction['Older'] + transaction['Period 2'] + transaction['Period 3']:.2f}"
+        )
 
         creditor = ET.SubElement(txn_info, "Cdtr")
         cr_nm = ET.SubElement(creditor, "Nm")
