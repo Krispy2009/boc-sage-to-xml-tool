@@ -63,9 +63,9 @@ class SageToBOCXMLTool:
 
     def onClickLabel(self, event):
         dialog = QFileDialog()
-        dialog.setFileMode(QFileDialog.FileMode.AnyFile)
+
         filename = dialog.getOpenFileName(self.window)
-        if filename[0] != "":
+        if self.isValidFileType(filename[0]):
             self.uploadLabel.setText(filename[0])
             self.filenameToUpload = filename[0]
 
@@ -84,6 +84,16 @@ class SageToBOCXMLTool:
         boc_xml = BoCXML(transactions)
         filename = boc_xml.build_xml(transactions)
         self.statusLabel.setText(f"File created: {filename}")
+
+    def isValidFileType(self, filename):
+        if not filename.endswith("xlsx"):
+            self.statusLabel.setText("Please select a .xlsx file")
+            self.statusLabel.setStyleSheet("color:red")
+            return False
+        else:
+            self.statusLabel.setText("")
+            self.statusLabel.setStyleSheet("color:black")
+            return True
 
     def onQuit(self, event):
         sys.exit()
