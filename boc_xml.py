@@ -23,7 +23,7 @@ class BoCXML:
         ccti = ET.SubElement(self.document, "CstmrCdtTrfInitn")
 
         # TODO: Check if this is right
-        total = sum([i["total_p2_p3"] for i in transactions])
+        total = sum([i["total_p2_p3_older"] for i in transactions])
 
         # Add Group Header
         self.build_grp_hdr(ccti, number_of_txns=len(transactions), total=total)
@@ -59,6 +59,9 @@ class BoCXML:
     def build_pmts(self, ccti, transaction):
         if transaction.get("IBAN") is None:
             # A critical piece is missing don't try to build pmt
+            return
+        elif transaction.get("Amt") == '0.00':
+            #don't add 0.00 amounts
             return
 
         pmt_info = ET.SubElement(ccti, "PmtInf")
@@ -112,7 +115,7 @@ class BoCXML:
         # TODO: CHECK THIS - is it always P2 and P3?
         amt = ET.SubElement(txn_info, "Amt")
         inst_amt = ET.SubElement(amt, "InstdAmt", attrib={"Ccy": "EUR"})
-        inst_amt.text = f"{transaction['Period 2'] + transaction['Period 3']:.2f}"
+        inst_amt.text = f"{transaction['Older'] + transaction['Period 2'] + transaction['Period 3']:.2f}"
 
         creditor = ET.SubElement(txn_info, "Cdtr")
         cr_nm = ET.SubElement(creditor, "Nm")

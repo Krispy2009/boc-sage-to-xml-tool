@@ -81,6 +81,9 @@ def do_calcs(txns):
         total_p1_p2_p3 = tx["Period 1"] + tx["Period 2"] + tx["Period 3"]
         tx["total_p1_p2_p3"] = total_p1_p2_p3
 
+        total_p2_p3_older = tx["Older"] + tx["Period 2"] + tx["Period 3"]
+        tx["total_p2_p3_older"] = total_p2_p3_older
+
         total_all = tx["Period 1"] + tx["Period 2"] + tx["Period 3"] + tx["Older"]
         tx["total_all"] = total_all
 
