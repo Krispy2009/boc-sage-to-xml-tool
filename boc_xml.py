@@ -9,7 +9,10 @@ from constants import BOC_BIC
 class BoCXML:
     def __init__(self, transactions):
 
-        if not all([os.environ.get("COMPANY_NAME"), os.environ.get("COMPANY_IBAN")]):
+        self.COMPANY_NAME = os.environ.get("COMPANY_NAME")
+        self.COMPANY_IBAN = os.environ.get("COMPANY_IBAN")
+
+        if not all([self.COMPANY_NAME, self.COMPANY_IBAN]):
             raise Exception("Please set COMPANY_NAME and COMPANY_IBAN values")
 
         self.document = self.build_xml(transactions)
@@ -59,7 +62,7 @@ class BoCXML:
 
         init_party = ET.SubElement(grp_hdr, "InitgPty")
         nm = ET.SubElement(init_party, "Nm")
-        nm.text = f"{os.environ['COMPANY_NAME']}"
+        nm.text = f"{self.COMPANY_NAME}"
 
     def build_pmts(self, ccti, transaction):
         if transaction.get("IBAN") is None:
@@ -96,7 +99,7 @@ class BoCXML:
         debtor_acct = ET.SubElement(pmt_info, "DbtrAcct")
         debtor_id = ET.SubElement(debtor_acct, "Id")
         iban = ET.SubElement(debtor_id, "IBAN")
-        iban.text = str(os.environ["COMPANY_IBAN"])
+        iban.text = str(self.COMPANY_IBAN)
 
         debtor_agent = ET.SubElement(pmt_info, "DbtrAgt")
         fin_inst = ET.SubElement(debtor_agent, "FinInstnId")
