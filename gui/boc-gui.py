@@ -1,4 +1,5 @@
 import sys
+from PyQt6.QtCore import QDate
 from PyQt6.QtWidgets import (
     QApplication,
     QLabel,
@@ -7,6 +8,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QPushButton,
     QFileDialog,
+    QDateEdit,
 )
 
 from helpers import parse_sage_report, do_calcs
@@ -24,24 +26,40 @@ class SageToBOCXMLTool:
         self.uploadButton = None
         self.quitButton = None
         self.statusLabel = None
+        self.dateLabel = None
+        self.dateEdit = None
 
         self.window = QWidget()
         self.window.setWindowTitle("SAGE 50 <=> Bank of Cyprus XML tool ")
-        self.window.setGeometry(100, 100, 500, 180)
+        self.window.setGeometry(100, 100, 500, 220)
 
         fileInputLayout = QVBoxLayout()
 
         self.initUploadLabel()
+        self.initDateSelector()
         self.initUploadButton()
         self.initStatusLabel()
         self.initQuitButton()
         fileInputLayout.addWidget(self.uploadLabel)
+        fileInputLayout.addWidget(self.dateLabel)
+        fileInputLayout.addWidget(self.dateEdit)
         fileInputLayout.addWidget(self.statusLabel)
         fileInputLayout.addWidget(self.uploadButton)
         fileInputLayout.addWidget(self.quitButton)
 
         self.window.setLayout(fileInputLayout)
         self.window.show()
+
+    def initDateSelector(self):
+        self.dateLabel = QLabel("Payment execution date")
+        self.dateLabel.setMaximumHeight(30)
+
+        self.dateEdit = QDateEdit()
+        self.dateEdit.setCalendarPopup(True)
+        self.dateEdit.setDisplayFormat("yyyy-MM-dd")
+        # Default to today and don't allow execution dates in the past
+        self.dateEdit.setDate(QDate.currentDate())
+        self.dateEdit.setMinimumDate(QDate.currentDate())
 
     def initStatusLabel(self):
         self.statusLabel = QLabel()
@@ -81,7 +99,8 @@ class SageToBOCXMLTool:
         self.statusLabel.setText(f"Generating XML file")
         transactions = parse_sage_report(filename)
         transactions = do_calcs(transactions)
-        boc_xml = BoCXML(transactions)
+        execution_date = self.dateEdit.date().toPyDate()
+        boc_xml = BoCXML(transactions, execution_date=execution_date)
         filename = boc_xml.build_xml(transactions)
         self.statusLabel.setText(f"File created: {filename}")
 

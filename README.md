@@ -17,7 +17,16 @@ COMPANY_IBAN=<your company IBAN>
 ```
 3. Make sure the filename in `main.py` corresponds to your report's filename.
 4. Run `python main.py`
+   - By default the payments use today's date as the execution date.
+   - To set a future execution date, pass it as `YYYY-MM-DD`, e.g. `python main.py 2026-07-01`.
 5. The XML should be created in the current directory 🎉
+
+
+## Running the GUI
+1. Run `python gui/boc-gui.py`
+2. Click the label to select your Sage report (`.xlsx`).
+3. Pick the **Payment execution date** (defaults to today; past dates are not allowed).
+4. Click **Upload** to generate the XML in the current directory.
 
 
 ## Packaging GUI for distribution

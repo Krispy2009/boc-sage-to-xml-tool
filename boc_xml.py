@@ -7,13 +7,16 @@ from constants import BOC_BIC
 
 
 class BoCXML:
-    def __init__(self, transactions):
+    def __init__(self, transactions, execution_date=None):
 
         self.COMPANY_NAME = os.environ.get("COMPANY_NAME")
         self.COMPANY_IBAN = os.environ.get("COMPANY_IBAN")
 
         if not all([self.COMPANY_NAME, self.COMPANY_IBAN]):
             raise Exception("Please set COMPANY_NAME and COMPANY_IBAN values")
+
+        # Date the payments should be executed by the bank. Defaults to today.
+        self.execution_date = execution_date or datetime.date.today()
 
         self.document = self.build_xml(transactions)
 
@@ -89,7 +92,7 @@ class BoCXML:
             code.text = "SEPA"
 
         req_ex_date = ET.SubElement(pmt_info, "ReqdExctnDt")
-        req_ex_date.text = datetime.datetime.now().strftime("%Y-%m-%d")
+        req_ex_date.text = self.execution_date.strftime("%Y-%m-%d")
 
         # The only required fields is IBAN, BIC
         # Charges are by default Shared in SEPA and OUR in TBOC transfers
