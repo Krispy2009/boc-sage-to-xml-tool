@@ -1,4 +1,10 @@
+import os
 import sys
+
+# Allow running directly (`python gui/boc-gui.py`) by putting the repo root,
+# where helpers.py and boc_xml.py live, on the import path.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from PyQt6.QtCore import QDate
 from PyQt6.QtWidgets import (
     QApplication,
