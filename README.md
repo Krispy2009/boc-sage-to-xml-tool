@@ -24,9 +24,13 @@ COMPANY_IBAN=<your company IBAN>
 
 ## Running the GUI
 1. Run `python gui/boc-gui.py`
-2. Click the label to select your Sage report (`.xlsx`).
-3. Pick the **Payment execution date** (defaults to today; past dates are not allowed).
-4. Click **Upload** to generate the XML in the current directory.
+2. The first time, click **Settings** and enter your **Company name** and **Company IBAN**
+   (the debtor details). These are saved on your machine and remembered between runs,
+   so you only need to do this once — the GUI does not use the `COMPANY_NAME` /
+   `COMPANY_IBAN` environment variables.
+3. Click the label to select your Sage report (`.xlsx`).
+4. Pick the **Payment execution date** (defaults to today; past dates are not allowed).
+5. Click **Upload**. The XML is generated next to the report you selected.
 
 
 ## Packaging the GUI into an executable
