@@ -29,5 +29,33 @@ COMPANY_IBAN=<your company IBAN>
 4. Click **Upload** to generate the XML in the current directory.
 
 
-## Packaging GUI for distribution
-This is still WIP - instructions [here](https://www.pythonguis.com/tutorials/packaging-pyqt6-applications-windows-pyinstaller/)
+## Packaging the GUI into an executable
+We use [PyInstaller](https://pyinstaller.org/) to bundle the GUI into a standalone
+executable so end users don't need Python installed.
+
+> **Note:** PyInstaller cannot cross-compile. You must build the Windows `.exe` on a
+> Windows machine and the macOS app on a Mac.
+
+First, install the dependencies (ideally in a virtual environment):
+```
+pip install -r requirements.txt
+pip install -r gui/requirements_gui.txt
+```
+
+### Windows
+Use the Windows spec file. From the repo root run:
+```
+pyinstaller boc-gui-windows.spec
+```
+The executable is created at `dist/sage-to-BOC-XML.exe`.
+
+### macOS
+Use the macOS spec file. From the repo root run:
+```
+pyinstaller boc-gui-mac.spec
+```
+The app is created at `dist/sage-to-BOC-XML.app` (with the raw binary at `dist/sage-to-BOC-XML`).
+
+The build artifacts land in `dist/`, with intermediate files in `build/`.
+
+Reference: [Packaging PyQt6 applications with PyInstaller](https://www.pythonguis.com/tutorials/packaging-pyqt6-applications-windows-pyinstaller/)
