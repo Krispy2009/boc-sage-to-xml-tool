@@ -7,16 +7,23 @@ from constants import BOC_BIC
 
 
 class BoCXML:
-    def __init__(self, transactions, execution_date=None):
+    def __init__(self, transactions, execution_date=None, company_name=None, company_iban=None, output_dir=None):
 
-        self.COMPANY_NAME = os.environ.get("COMPANY_NAME")
-        self.COMPANY_IBAN = os.environ.get("COMPANY_IBAN")
+        # Explicit values (e.g. from the GUI settings) win; otherwise fall back
+        # to environment variables so the terminal/direnv workflow still works.
+        self.COMPANY_NAME = company_name or os.environ.get("COMPANY_NAME")
+        self.COMPANY_IBAN = company_iban or os.environ.get("COMPANY_IBAN")
 
         if not all([self.COMPANY_NAME, self.COMPANY_IBAN]):
             raise Exception("Please set COMPANY_NAME and COMPANY_IBAN values")
 
         # Date the payments should be executed by the bank. Defaults to today.
         self.execution_date = execution_date or datetime.date.today()
+
+        # Where the XML is written. Defaults to the current directory, which is
+        # not writable for a Mac app launched from Finder, so the GUI passes the
+        # folder of the selected report instead.
+        self.output_dir = output_dir or "."
 
         self.document = self.build_xml(transactions)
 
@@ -42,10 +49,11 @@ class BoCXML:
         for transaction in transactions:
             self.build_pmts(ccti, transaction)
 
-        filename = f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S_ACMA.xml')}"
-        with open(filename, "wb") as f:
+        filename = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_ACMA.xml")
+        filepath = os.path.join(self.output_dir, filename)
+        with open(filepath, "wb") as f:
             f.write(ET.tostring(self.document))
-        return filename
+        return filepath
 
     def build_grp_hdr(self, ccti, number_of_txns=0, total=0):
         grp_hdr = ET.SubElement(ccti, "GrpHdr")
