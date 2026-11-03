@@ -73,3 +73,16 @@ Reference: [Packaging PyQt6 applications with PyInstaller](https://www.pythongui
 | `pain.001.001.03.xsd` | The XML schema |
 | `sample.xlsx` | Example report layout (fake data) |
 | `*.spec` | PyInstaller specs for Windows and macOS |
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+The suite uses only fake data (`sample.xlsx` and public example IBANs) and writes
+into temporary folders. Tests marked `xfail` document known gaps (for example,
+zero-amount payments are still emitted); each one will start failing loudly once the
+gap is fixed, which is your cue to remove the marker. Use the pinned `openpyxl==3.0.9`:
+on 3.1+ `parse_sage_report` raises `RuntimeError: Set changed size during iteration`.
